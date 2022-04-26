@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import requests
+from tkinter import filedialog, Tk, messagebox
 
 
 # get the json containing information on the book from the api
@@ -14,8 +15,11 @@ def call_api(isbn: str):
         return False
 
 
-input_path = input("Input file: ")
-output_path = input("Output file: ")
+parent = Tk()
+
+
+input_path = filedialog.askopenfilename(title="Choose input File", parent=parent)
+output_path = filedialog.asksaveasfilename(title="Choose output Location", parent=parent)
 
 df = pd.read_csv(input_path, names=["ISBN"])
 df["JSON"] = df["ISBN"].apply(call_api)
@@ -24,5 +28,6 @@ df["Authors"] = df["JSON"].apply(
     lambda x: "; ".join(author["name"] for author in x["authors"])
 )
 df["Title"] = df["JSON"].apply(lambda x: x["title"])
-
-df[["ISBN", "Title", "Authors"]].to_csv(output_path)
+print(df[["ISBN", "Title", "Authors"]])
+df[["ISBN", "Title", "Authors"]].to_csv(output_path, errors="ignore", encoding="iso-8859-1")
+messagebox.showinfo("Done", "The file was successfully augmented!", parent=parent)
