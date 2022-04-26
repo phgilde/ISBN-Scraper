@@ -17,22 +17,13 @@ def validate_input_path(path):
 
 
 def call_api(isbn: str):
-    url = f"http://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&jscmd=data"
-    result_str = requests.get(url)
-    if result_str:
-        return json.loads(result_str)[f"ISBN:{isbn}"]
+    url = f"http://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&jscmd=data&format=json"
+    result = json.loads(requests.get(url).content)
+    print(result)
+    if result:
+        return result[f"ISBN:{isbn}"]
     else:
         return False
-
-
-def isbn_to_tuple(isbn):
-    data_json = call_api(isbn)
-    if not data_json:
-        return "false", None, None
-    
-    authors = ", ".join(author["name"] for author in data_json["authors"])
-    title = data_json["title"]
-    return "true", authors, title
 
 
 input_path = input("Input file: ")
@@ -42,6 +33,12 @@ if not validate_input_path(input_path):
 
 output_path = input("Output file: ")
 
-df = pd.read_csv(input_path, header=0, names="ISBN")
-df["Exists"], df["Authors"], df["Title"] = df["ISBN"]
-df.to_csv(output_path)
+df = pd.read_csv(input_path, names=["ISBN"])
+print(df)
+df["JSON"] = df["ISBN"].apply(call_api)
+df["Authors"] = df["JSON"].apply(
+    lambda x: "; ".join(author["name"] for author in x["authors"])
+)
+df["Title"] = df["JSON"].apply(lambda x: x["title"])
+
+df[["ISBN", "Title", "Authors"]].to_csv(output_path)
