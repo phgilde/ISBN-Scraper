@@ -29,5 +29,5 @@ df["Authors"] = df["JSON"].apply(
 )
 df["Title"] = df["JSON"].apply(lambda x: x["title"])
 print(df[["ISBN", "Title", "Authors"]])
-df[["ISBN", "Title", "Authors"]].to_csv(output_path, errors="ignore", encoding="iso-8859-1")
+df[["ISBN", "Title", "Authors"]].to_csv(output_path, errors="ignore")
 messagebox.showinfo("Done", "The file was successfully augmented!", parent=parent)
