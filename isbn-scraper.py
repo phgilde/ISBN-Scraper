@@ -8,7 +8,6 @@ from tkinter import filedialog, Tk, messagebox
 def call_api(isbn: str):
     url = f"http://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&jscmd=data&format=json"
     result = json.loads(requests.get(url).content)
-    print(result)
     if result:
         return result[f"ISBN:{isbn}"]
     else:
